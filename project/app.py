@@ -1,5 +1,6 @@
 import boto3
-from flask import Flask
+import json
+from flask import Flask, request
 
 app = Flask(__name__)
 sqs = boto3.resource('sqs')
@@ -16,7 +17,15 @@ def transform():
     to_format = request.args.get('to_format')
     filename = request.args.get('filename')
     print(queue.url)
+    message = {
+	"from_format": from_format,
+	"to_format": to_format,
+	"filename": filename
+	}
 
+    response = queue.send_message(MessageBody=json.dumps(message), MessageGroupId="tasks")
+    response_id = response.get('MessageId')
+    return f'Received transform request for {filename} from {from_format} to {to_format}. Your request ID is {response_id}'
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=8000)
