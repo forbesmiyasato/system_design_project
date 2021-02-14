@@ -24,7 +24,7 @@ def handleTask():
             object_key = filename + '.' + from_format
             file_obj = s3.get_object(Bucket=bucket_name, Key=object_key)
             file_body = file_obj['Body']
-            content = file_body.read().decode('utf-8')
+            content = file_body.read().decode('utf-8-sig')
             print(content)
             print(type(content))
             csv_reader = csv.DictReader(io.StringIO(content))
