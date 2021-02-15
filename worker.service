@@ -1,0 +1,12 @@
+[Unit]
+Description=Worker Service
+After=multi-user.target
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python $HOME/system_design_question/project/worker.py                                                
+StandardInput=tty-force
+
+[Install]
+WantedBy=multi-user.target

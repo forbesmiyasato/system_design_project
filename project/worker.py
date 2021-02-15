@@ -22,24 +22,25 @@ def handleTask():
             to_format = data['to_format']
             filename = data['filename']
             object_key = filename + '.' + from_format
+
             try:
                 file_obj = s3.get_object(Bucket=bucket_name, Key=object_key)
             except:
+                #handle exception from getting file
                 pass
+
             file_body = file_obj['Body']
             content = file_body.read().decode('utf-8-sig')
-            print(content)
             body = None
+            valid_message = True
+
             if from_format == 'csv' and to_format == 'json':
                 csv_reader = csv.DictReader(io.StringIO(content))
                 json_data = json.dumps(list(csv_reader))
                 body = str(json.dumps(json_data))
-                print(json_data)
             elif from_format == 'json' and to_format == 'csv':
                 json_data = json.loads(content) #first load reformats the json data into proper string format
                 json_data = json.loads(json_data)
-                print(json_data)
-                print(type(json_data))
                 in_memory_file = io.StringIO()
                 csv_writer = csv.writer(in_memory_file)
                 header = True
@@ -50,13 +51,18 @@ def handleTask():
                         header = False
                     csv_writer.writerow(row.values())
                 body = in_memory_file.getvalue()
-            new_object_key = filename + '.' + to_format
-            try:
-                s3.put_object(Body=body, Bucket=bucket_name, Key=new_object_key)
-            except:
-                continue
-            message.delete()
-            s3.delete_object(Bucket=bucket_name, Key=object_key)
+            else:
+                valid_message = False
+
+            if valid_message:
+                new_object_key = filename + '.' + to_format
+                try:
+                    s3.put_object(Body=body, Bucket=bucket_name, Key=new_object_key)
+                except:
+                    continue
+                s3.delete_object(Bucket=bucket_name, Key=object_key)
+
+            message.delete() #delete message if valid or invalid?
 
 if __name__ == '__main__':
     handleTask()
