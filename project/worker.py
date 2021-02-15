@@ -65,4 +65,5 @@ def handleTask():
             message.delete() #delete message if valid or invalid?
 
 if __name__ == '__main__':
+    print("Worker running")
     handleTask()

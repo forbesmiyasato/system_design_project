@@ -1,0 +1,8 @@
+[Unit]
+Description=Execute python programs via shell script
+
+[Service]
+ExecStart=/home/ubuntu/system_design_question/start_worker.sh
+
+[Install]
+WantedBy=multi-user.target
