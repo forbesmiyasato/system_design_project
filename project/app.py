@@ -7,10 +7,6 @@ app = Flask(__name__)
 sqs = boto3.resource('sqs')
 queue = sqs.get_queue_by_name(QueueName='tasks.fifo')
 
-@app.route('/')
-def hello():
-    return 'Hello, World!'
-
 
 @app.route('/transform', methods=['POST'])
 def transform():
@@ -39,17 +35,18 @@ def get_status():
     model = Model()
     request_id = request.args.get('request_id')
     error, status = model.get_request(request_id)
-    print(status)
-    return status if not error else status 
+
+    return status['request_status'] if not error else status 
 
 
 @app.route('/update', methods=['POST'])
 def update_status():
     model = Model()
-    request_id = request.args.get('request_id')
-    status = request.args.get('status')
-    code = request.args.get('code')
+    request_id = request.form['request_id']
+    status = request.form['status']
+    code = request.form['code']
     model.update_request(request_id, status, code)
+    return "Updated"
 
 
 if __name__ == '__main__':

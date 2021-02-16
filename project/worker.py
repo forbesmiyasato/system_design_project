@@ -40,7 +40,7 @@ def handle_task():
             request_id = message.message_id
             print(f"received request {request_id}")
             url = 'http://52.27.158.127:80/update'
-            requests.post(url, data={'request_id': request_id, 'status': 'Processing request', 'code': 2})
+            requests.post(url, data={'request_id': request_id, 'status': 'Processing request', 'code': '2'})
             data = json.loads(message.body)
             from_format = data['from_format']
             to_format = data['to_format']
@@ -79,7 +79,7 @@ def handle_task():
                 continue
             s3.delete_object(Bucket=bucket_name, Key=object_key)
             message.delete()
-            requests.post(url, data={'request_id': request_id, 'status': 'Conversion completed', 'code': 3})
+            requests.post(url, data={'request_id': request_id, 'status': 'Conversion completed', 'code': '3'})
             print(f'finished request {request_id}')
 
 if __name__ == '__main__':

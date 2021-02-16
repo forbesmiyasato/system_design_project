@@ -47,6 +47,7 @@ class Model():
         return False, response['Item']
 
     def update_request(self, id, status, status_code):
+        print(status_code)
         # no try except blocks because this update isn't critical and won't result in different return values
         self.table.update_item(
             Key={
@@ -55,8 +56,9 @@ class Model():
             UpdateExpression="SET request_status=:s, code=:c",
             ExpressionAttributeValues={
                 ':s': status,
-                ':c': Decimal(int(status_code))
-            }
+                ':c': status_code
+            },
+            ReturnValues="UPDATED_NEW"
         )
 
     def post_request(self, id, status, code):
@@ -66,5 +68,5 @@ class Model():
             # Not sure how to handle this exception
             print(e.response['Error']['Message'])
             return False
-        
+
         return True
