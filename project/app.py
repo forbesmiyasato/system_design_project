@@ -28,7 +28,7 @@ def transform():
     try:
         response = queue.send_message(MessageBody=json.dumps(message), MessageGroupId="tasks")
         response_id = response.get('MessageId')
-        request_id_inserted = model.post_request(response_id, "Created conversion request")
+        request_id_inserted = model.post_request(response_id, "Created conversion request", 1)
         return f'Received transform request for {filename} from {from_format} to {to_format}. Your request ID is {response_id if request_id_inserted else "ERROR"}'
     except:
         return "Failed to create conversion request"
@@ -48,7 +48,8 @@ def update_status():
     model = Model()
     request_id = request.args.get('request_id')
     status = request.args.get('status')
-    model.update_request(request_id, status)
+    code = request.args.get('code')
+    model.update_request(request_id, status, code)
 
 
 if __name__ == '__main__':
