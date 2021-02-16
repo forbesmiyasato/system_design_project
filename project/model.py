@@ -47,7 +47,6 @@ class Model():
         return False, response['Item']
 
     def update_request(self, id, status, status_code):
-        print(status_code)
         # no try except blocks because this update isn't critical and won't result in different return values
         self.table.update_item(
             Key={

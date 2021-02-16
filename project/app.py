@@ -7,20 +7,30 @@ app = Flask(__name__)
 sqs = boto3.resource('sqs')
 queue = sqs.get_queue_by_name(QueueName='tasks.fifo')
 
+def split_s3_path(s3_path):
+    # this method is from stackoverflow
+    path_parts=s3_path.replace("s3://","").split("/")
+    bucket=path_parts.pop(0)
+    key="/".join(path_parts)
+    return bucket, key
+
 
 @app.route('/transform', methods=['POST'])
 def transform():
     model = Model()
     from_format = request.args.get('from_format')
     to_format = request.args.get('to_format')
-    filename = request.args.get('filename')
+    file_path = request.args.get('filename')
+
+    bucket, key = split_s3_path(file_path)
     print(queue.url)
     message = {
 	"from_format": from_format,
 	"to_format": to_format,
-	"filename": filename
+	"key": key,
+        "bucket": bucket
 	}
-
+    print(message)
     try:
         response = queue.send_message(MessageBody=json.dumps(message), MessageGroupId="tasks")
         response_id = response.get('MessageId')

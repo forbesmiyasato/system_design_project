@@ -5,7 +5,6 @@ import io
 import requests
 import time
 
-bucket_name = "aws-system-design"
 sqs = boto3.resource('sqs')
 s3 = boto3.client('s3')
 
@@ -44,8 +43,9 @@ def handle_task():
             data = json.loads(message.body)
             from_format = data['from_format']
             to_format = data['to_format']
-            filename = data['filename']
-            object_key = filename + '.' + from_format
+            object_name = data['key']
+            bucket_name = data['bucket']
+            object_key = object_name + '.' + from_format
             csv_to_json = from_format == 'csv' and to_format == 'json'
             json_to_csv = from_format == 'json' and to_format == 'csv'
 
@@ -71,7 +71,7 @@ def handle_task():
                 body = get_csv(content)
 
             time.sleep(10) # pretend like it takes longer for task to process
-            new_object_key = filename + '.' + to_format
+            new_object_key = object_name + '.' + to_format
             try:
                 s3.put_object(Body=body, Bucket=bucket_name, Key=new_object_key)
             except:
