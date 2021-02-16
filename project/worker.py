@@ -2,6 +2,8 @@ import boto3
 import json
 import csv
 import io
+import requests
+import time
 
 bucket_name = "aws-system-design"
 sqs = boto3.resource('sqs')
@@ -37,6 +39,8 @@ def handle_task():
             message = messages[0]
             request_id = message.message_id
             print(f"received request {request_id}")
+            url = 'http://52.27.158.127:80/update'
+            requests.post(url, data={'request_id': request_id, 'status': 'Processing request'})
             data = json.loads(message.body)
             from_format = data['from_format']
             to_format = data['to_format']
@@ -65,6 +69,7 @@ def handle_task():
             elif json_to_csv:
                 body = get_csv(content)
 
+            time.sleep(10) # pretend like it takes longer for task to process
             new_object_key = filename + '.' + to_format
             try:
                 s3.put_object(Body=body, Bucket=bucket_name, Key=new_object_key)
@@ -73,6 +78,8 @@ def handle_task():
                 continue
             s3.delete_object(Bucket=bucket_name, Key=object_key)
             message.delete()
+            requests.post(url, data={'request_id': request_id, 'status': 'Conversion completed'})
+
 
 if __name__ == '__main__':
     print("Worker running")
