@@ -10,13 +10,13 @@ s3 = boto3.client('s3')
 
 queue = sqs.get_queue_by_name(QueueName='tasks.fifo')
 
-def get_json(content):
+def to_json(content):
     csv_reader = csv.DictReader(io.StringIO(content))
     json_data = json.dumps(list(csv_reader))
     return str(json.dumps(json_data))
 
 
-def get_csv(content):
+def to_csv(content):
     json_data = json.loads(content) # first load reformats the json data into proper string format
     json_data = json.loads(json_data)
     in_memory_file = io.StringIO()
@@ -67,9 +67,9 @@ def handle_task():
             body = None
 
             if csv_to_json:
-                body = get_json(content)
+                body = to_json(content)
             elif json_to_csv:
-                body = get_csv(content)
+                body = to_csv(content)
 
             time.sleep(10) # pretend like it takes longer for task to process
             new_object_key = object_name + '.' + to_format
