@@ -35,7 +35,7 @@ def transform():
         response = queue.send_message(MessageBody=json.dumps(message), MessageGroupId="tasks")
         response_id = response.get('MessageId')
         request_id_inserted = model.post_request(response_id, "Created conversion request", 1)
-        return f'Received transform request for {filename} from {from_format} to {to_format}. Your request ID is {response_id if request_id_inserted else "undefined"}'
+        return f'Received transform request for {file_path} from {from_format} to {to_format}. Your request ID is {response_id if request_id_inserted else "undefined"}'
     except Exception as e:
         return f"Failed to create conversion request - {e}"
 
@@ -56,14 +56,6 @@ def update_status():
     model.update_request(request_id, status, code)
     return "Updated"
 
-
-@app.route('/update', methods=['POST'])
-def update_status():
-    request_id = request.form['request_id']
-    status = request.form['status']
-    code = request.form['code']
-    model.update_request(request_id, status, code)
-    return "Updated"
 
 @app.route('/file', methods=['GET'])
 def get_file():
