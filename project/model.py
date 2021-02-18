@@ -7,6 +7,7 @@ TABLE_NAME = 'request'
 
 class Model():
     def __init__(self):
+        # Initializes the class
         self.resource = boto3.resource("dynamodb")
         self.table = self.resource.Table(TABLE_NAME)
         try:
@@ -35,6 +36,8 @@ class Model():
 
 
     def get_request(self, id):
+        # Gets the request from the DB.
+        # Returns True (has error) and error message if can't retrieve the request from DB, and False (has no error) and request json if retrieved request from DB
         try:
             response = self.table.get_item(Key={'request_id': id})
         except ClientError as e:
@@ -47,6 +50,7 @@ class Model():
         return False, response['Item']
 
     def update_request(self, id, status, status_code):
+        # Update the request in the DB
         # no try except blocks because this update isn't critical and won't result in different return values
         self.table.update_item(
             Key={
@@ -61,6 +65,7 @@ class Model():
         )
 
     def post_request(self, id, status, code):
+        # Insert request into the DB
         try:
             self.table.put_item(Item={'request_id': id, 'request_status': status, 'code': code})
         except ClientError as e:

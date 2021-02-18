@@ -9,7 +9,10 @@ queue = sqs.get_queue_by_name(QueueName='tasks.fifo')
 model = Model() # is this a good practice?
 s3 = boto3.client('s3')
 
+
 def split_s3_path(s3_path):
+    # Copied from stackoverflow
+    # retrieve bucket name and object key from s3_path 
     path_parts=s3_path.replace("s3://","").split("/")
     bucket=path_parts.pop(0)
     key="/".join(path_parts)
@@ -18,6 +21,8 @@ def split_s3_path(s3_path):
 
 @app.route('/transform', methods=['POST'])
 def transform():
+    # Route for the user to make a conversion request
+    # Adds the conversion request to the queue and returns the user a request id
     from_format = request.args.get('from_format')
     to_format = request.args.get('to_format')
     file_path = request.args.get('filename')
@@ -42,6 +47,7 @@ def transform():
 
 @app.route('/status', methods=['GET'])
 def get_status():
+    # Route for the user to check the conversion progress 
     request_id = request.args.get('request_id')
     error, status = model.get_request(request_id)
 
@@ -50,6 +56,7 @@ def get_status():
 
 @app.route('/update', methods=['POST'])
 def update_status():
+    # Route for the worker to update the conversion progress
     request_id = request.form['request_id']
     status = request.form['status']
     code = request.form['code']
@@ -59,6 +66,7 @@ def update_status():
 
 @app.route('/file', methods=['GET'])
 def get_file():
+    # Route for the user to check the file's content
     path = request.args.get('filename')
 
     bucket_name, object_key = split_s3_path(path)
