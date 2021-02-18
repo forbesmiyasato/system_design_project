@@ -33,8 +33,9 @@ def get_csv(content):
 
 def handle_task():
     while True:
-        messages = queue.receive_messages()
+        messages = queue.receive_messages(MaxNumberOfMessages=1)
         if messages:
+            time.sleep(10) # pretend like it takes longer to receive a message
             message = messages[0]
             request_id = message.message_id
             print(f"received request {request_id}")
