@@ -1,9 +1,9 @@
 import boto3
 import time
-from decimal import Decimal
 from botocore.exceptions import ClientError
 
 TABLE_NAME = 'request'
+
 
 class Model():
     def __init__(self):
@@ -11,8 +11,8 @@ class Model():
         self.resource = boto3.resource("dynamodb")
         self.table = self.resource.Table(TABLE_NAME)
         try:
-            self.table.load() # check if table exists
-        except:
+            self.table.load()  # check if table exists
+        except Exception:
             self.resource.create_table(
                 TableName=TABLE_NAME,
                 KeySchema=[
@@ -32,12 +32,16 @@ class Model():
                     "WriteCapacityUnits": 10
                 }
             )
-        time.sleep(5) # give table some to be created for the subsequent post request
-
+        # give table some time to be created for the subsequent post request
+        time.sleep(5)
 
     def get_request(self, id):
-        # Gets the request from the DB.
-        # Returns True (has error) and error message if can't retrieve the request from DB, and False (has no error) and request json if retrieved request from DB
+        '''
+        Gets the request from the DB.
+        Returns True (has error) and error message if can't retrieve the
+        request from DB, and False (has no error) and request json if retrieved
+        request from DB
+        '''
         try:
             response = self.table.get_item(Key={'request_id': id})
         except ClientError as e:
@@ -50,8 +54,11 @@ class Model():
         return False, response['Item']
 
     def update_request(self, id, status, status_code):
-        # Update the request in the DB
-        # no try except blocks because this update isn't critical and won't result in different return values
+        '''
+        Update the request in the DB
+        no try except blocks because this update isn't critical
+        and won't result in different return values
+        '''
         self.table.update_item(
             Key={
                 'request_id': id
@@ -67,7 +74,8 @@ class Model():
     def post_request(self, id, status, code):
         # Insert request into the DB
         try:
-            self.table.put_item(Item={'request_id': id, 'request_status': status, 'code': code})
+            self.table.put_item(Item={'request_id': id,
+                                      'request_status': status, 'code': code})
         except ClientError as e:
             # Not sure how to handle this exception
             print(e.response['Error']['Message'])
