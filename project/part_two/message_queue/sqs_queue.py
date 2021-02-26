@@ -1,6 +1,6 @@
 import boto3
 import json
-from message_queue import MessageQueue
+from .base_queue import MessageQueue
 
 
 class SQS(MessageQueue):
@@ -18,4 +18,7 @@ class SQS(MessageQueue):
         messages = self.queue.receive_messages(
             MaxNumberOfMessages=1, WaitTimeSeconds=20
         )
-        return messages[0]
+        message = messages[0]
+        data = json.loads(message.body)
+
+        return data

@@ -38,13 +38,11 @@ def convert_from_json_to_csv(content):
 def handle_task():
     # Receives messages from the queue and processes the conversions.
     while True:
-        messages = queue.receive_messages(
-            MaxNumberOfMessages=1, WaitTimeSeconds=20
-        )
-        if messages:
+        message = queue.receive_messages()
+        print(message)
+        if message:
             time.sleep(10)  # pretend like it takes longer to receive a message
-            message = messages[0]
-            request_id = message.message_id
+            request_id = message['request_id']
             print(f"received request {request_id}")
             url = "http://52.27.158.127:80/update"
             requests.post(

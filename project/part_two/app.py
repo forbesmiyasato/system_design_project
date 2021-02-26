@@ -31,19 +31,19 @@ def transform():
     file_path = request.args.get("filename")
 
     bucket, key = split_s3_path(file_path)
-    print(queue.url)
+    request_id = uuid.uuid1()
     message = {
         "from_format": from_format,
         "to_format": to_format,
         "key": key,
         "bucket": bucket,
+        "request_id": request_id
     }
     print(message)
     try:
         queue.send_message(
             MessageBody=json.dumps(message), MessageGroupId="tasks"
         )
-        request_id = uuid.uuid1()
         # returns false if couldn't insert request id into DB
         request_id_inserted = model.post_request
         (request_id, "Created conversion request", 1)
