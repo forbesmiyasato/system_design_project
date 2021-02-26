@@ -37,7 +37,7 @@ def transform():
         "to_format": to_format,
         "key": key,
         "bucket": bucket,
-        "request_id": request_id
+        "request_id": request_id,
     }
     print(message)
     try:

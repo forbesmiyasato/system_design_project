@@ -42,7 +42,7 @@ def handle_task():
         print(message)
         if message:
             time.sleep(10)  # pretend like it takes longer to receive a message
-            request_id = message['request_id']
+            request_id = message["request_id"]
             print(f"received request {request_id}")
             url = "http://52.27.158.127:80/update"
             requests.post(
@@ -53,11 +53,10 @@ def handle_task():
                     "code": "2",
                 },
             )
-            data = json.loads(message.body)
-            from_format = data["from_format"]
-            to_format = data["to_format"]
-            object_name = data["key"]
-            bucket_name = data["bucket"]
+            from_format = message["from_format"]
+            to_format = message["to_format"]
+            object_name = message["key"]
+            bucket_name = message["bucket"]
             object_key = object_name + "." + from_format
             csv_to_json = from_format == "csv" and to_format == "json"
             json_to_csv = from_format == "json" and to_format == "csv"

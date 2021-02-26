@@ -14,7 +14,12 @@ def add_message():
     message = json.load(message)
     if type(message) is not dict:
         return_string = "Invalid type for message, expecting type 'dict'"
-    elif {"from_format", "to_format", "key", "bucket, request_id"} != message.keys():
+    elif {
+        "from_format",
+        "to_format",
+        "key",
+        "bucket, request_id",
+    } != message.keys():
         return_string = "Invalid keys for message."
     messages.append(message)
     print(messages)

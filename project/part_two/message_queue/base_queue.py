@@ -12,7 +12,12 @@ class MessageQueue:
         """
         if type(message) is not dict:
             raise ValueError("Invalid type for message, expecting type 'dict'")
-        elif {"from_format", "to_format", "key", "bucket, request_id"} != message.keys():
+        elif {
+            "from_format",
+            "to_format",
+            "key",
+            "bucket, request_id",
+        } != message.keys():
             raise ValueError("Invalid keys for message.")
         pass
 
