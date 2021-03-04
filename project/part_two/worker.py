@@ -5,10 +5,9 @@ import io
 import requests
 import time
 
-sqs = boto3.resource("sqs")
-s3 = boto3.client("s3")
+import message_queue as queue
 
-queue = sqs.get_queue_by_name(QueueName="tasks.fifo")
+s3 = boto3.client("s3")
 
 
 def convert_from_csv_to_json(content):

@@ -12,7 +12,7 @@ class RestQueue(MessageQueue):
         url = self.host + "add_message"
         requests.post(url, data={json.dump(message)})
 
-    def receive_message(self, message):
+    def receive_message(self):
         url = self.host + "get_message"
         response = requests.get(url)
         print(response.json())

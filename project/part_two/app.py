@@ -41,9 +41,7 @@ def transform():
     }
     print(message)
     try:
-        queue.send_message(
-            MessageBody=json.dumps(message), MessageGroupId="tasks"
-        )
+        queue.send_message(message)
         # returns false if couldn't insert request id into DB
         request_id_inserted = model.post_request
         (request_id, "Created conversion request", 1)

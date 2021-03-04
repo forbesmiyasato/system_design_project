@@ -6,8 +6,11 @@ from botocore.exceptions import ClientError
 
 class DynamoDB(Model):
     def __init__(self):
-        """
-        Initializes the class. Creates DynamoDB Table if table doesn't exist.
+        """Initializes the instance.
+
+        Creates DynamoDB Table if table doesn't exist in database.
+        Sleeps for 5 seconds after table creation request to avoid
+        requesting to insert into table before the table is created.
         """
         self.resource = boto3.resource("dynamodb")
         self.table = self.resource.Table(self.TABLE_NAME)
@@ -29,6 +32,19 @@ class DynamoDB(Model):
         time.sleep(5)
 
     def get_request(self, id):
+        """Gets the request data from the database table with the records id.
+
+        Parameters
+        ----------
+        id : int
+            The id of the request record we want to retrive from the DB
+
+        Returns
+        ------
+        True (has error) and error message if can't retrieve the
+        request from DB, and False (has no error) and request json if retrieved
+        request from DB
+        """
         try:
             response = self.table.get_item(Key={"request_id": id})
         except ClientError as e:
@@ -40,15 +56,45 @@ class DynamoDB(Model):
 
         return False, response["Item"]
 
-    def update_request(self, id, status, status_code):
+    def update_request(self, id, status, code):
+        """Update the request record in the DB
+
+        Parameters
+        ----------
+        id : int
+            The id of the request record we want to update
+        status : str
+            The status of the request (e.g. received, in progress, completed)
+        code : int
+            An integer value corresponding to a request status (e.g. 1 for received)
+
+        Returns
+        ------
+        None
+        """
         self.table.update_item(
             Key={"request_id": id},
             UpdateExpression="SET request_status=:s, code=:c",
-            ExpressionAttributeValues={":s": status, ":c": status_code},
+            ExpressionAttributeValues={":s": status, ":c": code},
             ReturnValues="UPDATED_NEW",
         )
 
     def post_request(self, id, status, code):
+        """Inserts new request into the DB
+
+        Parameters
+        ----------
+        id : int
+            The id of the new request record
+        status : str
+            The status of the request (e.g. received, in progress, completed)
+        code : int
+            An integer value corresponding to a request status (e.g. 1 for received)
+
+        Returns
+        ------
+        True if record was successfully added, false if couldn't add record
+        """
         try:
             self.table.put_item(
                 Item={"request_id": id, "request_status": status, "code": code}

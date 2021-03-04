@@ -11,7 +11,7 @@ class PostgreSQL(Model):
     def get_request(self, id):
         print(self.TABLE_NAME)
 
-    def update_request(self, id, status, status_code):
+    def update_request(self, id, status, code):
         pass
 
     def post_request(self, id, status, code):
