@@ -12,16 +12,20 @@ def add_message():
     message = request.form["message"]
     return_string = "Message is successfully added to queue."
     message = json.loads(message)
-    if type(message) is not dict:
-        return_string = "Invalid type for message, expecting type 'dict'"
-    elif {
+    expected_keys = [
         "from_format",
         "to_format",
         "key",
-        "bucket, request_id",
-    } != message.keys():
+        "bucket",
+        "request_id",
+    ]
+    if type(message) is not dict:
+        return_string = "Invalid type for message, expecting type 'dict'"
+    elif all(key in message.keys() for key in expected_keys) is False:
         return_string = "Invalid keys for message."
-    messages.append(message)
+    else:
+        return_string = "Successfully added message to queue."
+        messages.append(message)
     return return_string
 
 

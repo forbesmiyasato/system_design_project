@@ -45,7 +45,7 @@ def transform():
 
         request_id_inserted = model.post_request(
             request_id, "Created conversion request", 1
-        ) # returns false if couldn't insert request id into DB
+        )  # returns false if couldn't insert request id into DB
 
         return f'Received transform request for {file_path} from {from_format} \
             to {to_format}. Your request ID is \
@@ -59,7 +59,7 @@ def get_status():
     # Route for the user to check the conversion progress
     request_id = request.args.get("request_id")
     error, status = model.get_request(request_id)
-    status['code'] = int(status['code']) # serialize the Decimal object
+    status["code"] = int(status["code"])  # serialize the Decimal object
     return json.dumps(status) if not error else status
 
 
