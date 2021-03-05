@@ -15,6 +15,6 @@ class RestQueue(MessageQueue):
     def receive_message(self):
         url = self.host + "get_message"
         response = requests.get(url)
-        print(response.json())
-        response_json = response.json()
+        if response is None or "empty" in response.json():
+            return None
         return response.json()

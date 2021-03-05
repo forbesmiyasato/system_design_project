@@ -13,7 +13,7 @@ class MessageQueue:
             "from_format",
             "to_format",
             "key",
-            "bucket", 
+            "bucket",
             "request_id",
         ]
 

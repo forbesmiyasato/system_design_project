@@ -9,9 +9,7 @@ messages = deque()
 
 @app.route("/add_message", methods=["POST"])
 def add_message():
-    print("test")
     message = request.form["message"]
-    print(message)
     return_string = "Message is successfully added to queue."
     message = json.loads(message)
     if type(message) is not dict:
@@ -24,7 +22,6 @@ def add_message():
     } != message.keys():
         return_string = "Invalid keys for message."
     messages.append(message)
-    print(messages)
     return return_string
 
 
@@ -34,7 +31,7 @@ def get_message():
     try:
         message = messages.popleft()
     except IndexError:
-        return "No messages in queue"
+        return json.dumps({"empty": True})
     return json.dumps(message)
 
 

@@ -6,9 +6,13 @@ import requests
 import time
 from multiprocessing import Process
 
-import message_queue as queue
+import message_queue
+
+queue = message_queue.get_model()
 
 s3 = boto3.client("s3")
+
+url_host = "http://34.208.159.15:80/"
 
 
 def convert_from_csv_to_json(content):
@@ -39,9 +43,9 @@ def handle_task(message):
     time.sleep(10)  # pretend like it takes longer to receive a message
     request_id = message["request_id"]
     print(f"received request {request_id}")
-    url = "http://52.27.158.127:80/update"
+    update_url = url_host + "update"
     requests.post(
-        url,
+        update_url,
         data={
             "request_id": request_id,
             "status": "Processing request",
@@ -85,7 +89,7 @@ def handle_task(message):
     s3.delete_object(Bucket=bucket_name, Key=object_key)
     message.delete()
     requests.post(
-        url,
+        update_url,
         data={
             "request_id": request_id,
             "status": "Conversion completed",
@@ -97,10 +101,25 @@ def handle_task(message):
 
 if __name__ == "__main__":
     print("Worker running")
-    # Receives messages from the queue and processes the conversions.
+    """Receives messages from the queue and processes the conversions.
+
+    Polls task messages from the queue in an infinite loop.
+
+    If there is a task message in the queue, check if the task is already 
+    being processed. If it is, discard the message. If it isn't, spawn a new 
+    process to handle the task and continue polling for messages.
+    """
     while True:
-        message = queue.receive_messages()
+        message = queue.receive_message()
         print(message)
         if message:
-            p = Process(target=handle_task, args=(message,))
-            p.start()
+            get_url = url_host + "status"
+            res = requests.get(
+                get_url, params={"request_id": message["request_id"]}
+            )
+            print(res)
+            print(res.json())
+            if res == 1:  # 1 for not being processed yet
+                p = Process(target=handle_task, args=(message,))
+                p.start()
+        time.sleep(1)
