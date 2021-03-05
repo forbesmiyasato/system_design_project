@@ -7,11 +7,13 @@ app = Flask(__name__)
 messages = deque()
 
 
-@app.route("/add_message", method=["POST"])
+@app.route("/add_message", methods=["POST"])
 def add_message():
+    print("test")
     message = request.form["message"]
+    print(message)
     return_string = "Message is successfully added to queue."
-    message = json.load(message)
+    message = json.loads(message)
     if type(message) is not dict:
         return_string = "Invalid type for message, expecting type 'dict'"
     elif {
@@ -26,15 +28,15 @@ def add_message():
     return return_string
 
 
-@app.route("/get_message", method=["GET"])
+@app.route("/get_message", methods=["GET"])
 def get_message():
     message = None
     try:
         message = messages.popleft()
     except IndexError:
         return "No messages in queue"
-    return json.dump(message)
+    return json.dumps(message)
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="127.0.0.1", port=5000)
+    app.run(debug=True, host="127.0.0.1", port=5000)

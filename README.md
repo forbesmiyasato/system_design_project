@@ -18,4 +18,4 @@ cd project
 
 gunicorn app:app
 
-access at http://52.27.158.127:80
+access at http://34.208.159.15:80

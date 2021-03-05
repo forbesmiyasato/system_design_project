@@ -1,8 +1,8 @@
-database = "postgres"
+database = "dynamodb"
 
-if database == "postgres":
+if database == "postgresql":
     from .postgres_model import PostgreSQL as model
-elif database == "dynamo":
+elif database == "dynamodb":
     from .dynamo_model import DynamoDB as model
 else:
     raise ValueError("No appropriate database configured.")

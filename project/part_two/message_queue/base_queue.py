@@ -1,6 +1,5 @@
 class MessageQueue:
     def send_message(self, message):
-        print("parent")
         """
         Delivers a message to the specified queue.
         Message format: {
@@ -10,16 +9,18 @@ class MessageQueue:
             "bucket": ,
         }
         """
-        if type(message) is not dict:
-            raise ValueError("Invalid type for message, expecting type 'dict'")
-        elif {
+        expected_keys = [
             "from_format",
             "to_format",
             "key",
-            "bucket, request_id",
-        } != message.keys():
+            "bucket", 
+            "request_id",
+        ]
+
+        if type(message) is not dict:
+            raise ValueError("Invalid type for message, expecting type 'dict'")
+        elif all(key in message.keys() for key in expected_keys) is False:
             raise ValueError("Invalid keys for message.")
-        pass
 
     def receive_message(self):
         """

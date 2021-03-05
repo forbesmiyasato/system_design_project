@@ -7,7 +7,7 @@ elif queue_type == "sqs":
 else:
     raise ValueError("No appropriate message queue configured.")
 
-backend_queue = queue
+backend_queue = queue()
 
 
 def get_model():
