@@ -2,3 +2,5 @@ system_design_env
 __pycache__
 env
 system_design.pem
+aws.pem
+.vscode
