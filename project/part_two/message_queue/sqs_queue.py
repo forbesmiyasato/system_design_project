@@ -18,7 +18,23 @@ class SQS(MessageQueue):
         messages = self.queue.receive_messages(
             MaxNumberOfMessages=1, WaitTimeSeconds=20
         )
-        message = messages[0]
-        data = json.loads(message.body)
+        data = None
 
+        if messages:
+            message = messages[0]
+            data = json.loads(message.body)
+            data['receipt_handle'] = message.receipt_handle
+            data['message_id'] = message.message_id
         return data
+
+    def delete_message(self, receipt_handle, message_id):
+        print(receipt_handle)
+        self.queue.delete_messages(
+            Entries=[
+                {
+                    'Id': message_id,
+                    'ReceiptHandle': receipt_handle
+                },
+            ]
+        )
+        pass

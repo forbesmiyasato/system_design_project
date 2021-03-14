@@ -1,4 +1,4 @@
-queue_type = "rest"
+queue_type = "sqs"
 
 if queue_type == "rest":
     from .rest_queue import RestQueue as queue

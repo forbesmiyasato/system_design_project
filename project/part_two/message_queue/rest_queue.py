@@ -18,3 +18,6 @@ class RestQueue(MessageQueue):
         if response is None or "empty" in response.json():
             return None
         return response.json()
+
+    def delete_message(self, receipt_handle):
+        pass

@@ -66,37 +66,42 @@ def handle_task(message):
         message.delete()
     try:
         file_obj = s3.get_object(Bucket=bucket_name, Key=object_key)
-    except Exception:
-        # TODO handle exception from getting file
-        pass
 
-    file_body = file_obj["Body"]
-    content = file_body.read().decode("utf-8-sig")
-    body = None
+        file_body = file_obj["Body"]
+        content = file_body.read().decode("utf-8-sig")
+        body = None
 
-    if csv_to_json:
-        body = convert_from_csv_to_json(content)
-    elif json_to_csv:
-        body = convert_from_json_to_csv(content)
+        if csv_to_json:
+            body = convert_from_csv_to_json(content)
+        elif json_to_csv:
+            body = convert_from_json_to_csv(content)
 
-    time.sleep(10)  # pretend like it takes longer for task to process
-    new_object_key = object_name + "." + to_format
-    try:
+        time.sleep(10)  # pretend like it takes longer for task to process
+        new_object_key = object_name + "." + to_format
+
         s3.put_object(Body=body, Bucket=bucket_name, Key=new_object_key)
-    except Exception:
-        # TODO handle exception from uploading file
-        pass
-    s3.delete_object(Bucket=bucket_name, Key=object_key)
-    message.delete()
-    requests.post(
-        update_url,
-        data={
-            "request_id": request_id,
-            "status": "Conversion completed",
-            "code": "3",
-        },
-    )
-    print(f"finished request {request_id}")
+    except Exception as e:
+        print(e.message())
+        requests.post(
+            update_url,
+            data={
+                "request_id": request_id,
+                "status": e.message(),
+                "code": "0",
+            },
+        )
+    else:
+        s3.delete_object(Bucket=bucket_name, Key=object_key)
+        queue.delete_message(message["receipt_handle"], message['message_id'])
+        requests.post(
+            update_url,
+            data={
+                "request_id": request_id,
+                "status": "Conversion completed",
+                "code": "3",
+            },
+        )
+        print(f"finished request {request_id}")
 
 
 if __name__ == "__main__":
@@ -113,13 +118,13 @@ if __name__ == "__main__":
         message = queue.receive_message()
         print(message)
         if message:
+            # Check the status code of the task to avoid duplicate work
             get_url = url_host + "status"
             res = requests.get(
                 get_url, params={"request_id": message["request_id"]}
             )
-            print(res)
             print(res.json())
-            if res == 1:  # 1 for not being processed yet
+            if res.json()['code'] == 1:  # 1 for not being processed yet
                 p = Process(target=handle_task, args=(message,))
                 p.start()
         time.sleep(1)

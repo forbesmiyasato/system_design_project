@@ -27,3 +27,6 @@ class MessageQueue:
         fetch a message from the specified queue.
         """
         pass
+
+    def delete_message(self, receipt_handle):
+        pass
