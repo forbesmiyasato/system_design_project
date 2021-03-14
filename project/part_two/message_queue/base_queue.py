@@ -25,16 +25,18 @@ class MessageQueue:
         request from DB, and False (has no error) and request json if retrieved
         request from DB
         """
-        if type(message) is not dict:
-            raise ValueError("Invalid type for message, expecting type 'dict'")
-        elif {
+        expected_keys = [
             "from_format",
             "to_format",
             "key",
-            "bucket, request_id",
-        } != message.keys():
+            "bucket",
+            "request_id",
+        ]
+
+        if type(message) is not dict:
+            raise ValueError("Invalid type for message, expecting type 'dict'")
+        elif all(key in message.keys() for key in expected_keys) is False:
             raise ValueError("Invalid keys for message.")
-        pass
 
     def receive_message(self):
         """

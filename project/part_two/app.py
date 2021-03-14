@@ -2,13 +2,13 @@ import boto3
 import json
 import uuid
 
-import model
-import message_queue as queue
+import database_model
+import message_queue
 
 from flask import Flask, request
 
 app = Flask(__name__)
-db_model = model.get_model()  # is this a good practice?
+model = database_model.get_model()  # is this a good practice?
 s3 = boto3.client("s3")
 
 
@@ -31,7 +31,7 @@ def transform():
     file_path = request.args.get("filename")
 
     bucket, key = split_s3_path(file_path)
-    request_id = uuid.uuid1()
+    request_id = str(uuid.uuid1())
     message = {
         "from_format": from_format,
         "to_format": to_format,
@@ -39,12 +39,14 @@ def transform():
         "bucket": bucket,
         "request_id": request_id,
     }
-    print(message)
     try:
+        queue = message_queue.get_model()
         queue.send_message(message)
-        # returns false if couldn't insert request id into DB
-        request_id_inserted = model.post_request
-        (request_id, "Created conversion request", 1)
+
+        request_id_inserted = model.post_request(
+            request_id, "Created conversion request", 1
+        )  # returns false if couldn't insert request id into DB
+
         return f'Received transform request for {file_path} from {from_format} \
             to {to_format}. Your request ID is \
             {request_id if request_id_inserted else "undefined"}'
@@ -57,8 +59,8 @@ def get_status():
     # Route for the user to check the conversion progress
     request_id = request.args.get("request_id")
     error, status = model.get_request(request_id)
-
-    return status["request_status"] if not error else status
+    status["code"] = int(status["code"])  # serialize the Decimal object
+    return json.dumps(status) if not error else status
 
 
 @app.route("/update", methods=["POST"])
@@ -90,4 +92,4 @@ def get_file():
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="127.0.0.1", port=8000)
+    app.run(debug=True, host="127.0.0.1", port=8000)

@@ -1,5 +1,5 @@
 server {
- server_name 52.201.221.49;
+ server_name 34.208.159.15;
  listen 80;
 
  location / {

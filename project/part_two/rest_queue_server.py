@@ -7,34 +7,37 @@ app = Flask(__name__)
 messages = deque()
 
 
-@app.route("/add_message", method=["POST"])
+@app.route("/add_message", methods=["POST"])
 def add_message():
     message = request.form["message"]
     return_string = "Message is successfully added to queue."
-    message = json.load(message)
-    if type(message) is not dict:
-        return_string = "Invalid type for message, expecting type 'dict'"
-    elif {
+    message = json.loads(message)
+    expected_keys = [
         "from_format",
         "to_format",
         "key",
-        "bucket, request_id",
-    } != message.keys():
+        "bucket",
+        "request_id",
+    ]
+    if type(message) is not dict:
+        return_string = "Invalid type for message, expecting type 'dict'"
+    elif all(key in message.keys() for key in expected_keys) is False:
         return_string = "Invalid keys for message."
-    messages.append(message)
-    print(messages)
+    else:
+        return_string = "Successfully added message to queue."
+        messages.append(message)
     return return_string
 
 
-@app.route("/get_message", method=["GET"])
+@app.route("/get_message", methods=["GET"])
 def get_message():
     message = None
     try:
         message = messages.popleft()
     except IndexError:
-        return "No messages in queue"
-    return json.dump(message)
+        return json.dumps({"empty": True})
+    return json.dumps(message)
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="127.0.0.1", port=5000)
+    app.run(debug=True, host="127.0.0.1", port=5000)
