@@ -9,6 +9,9 @@ class MessageQueue:
 
     receive_message()
         Get a message from the queue
+
+    delete_message(receipt_handle, message_id)
+        Delete the message from the queue with its receipt handle
     """
 
     def send_message(self, message):
@@ -45,4 +48,7 @@ class MessageQueue:
         pass
 
     def delete_message(self, receipt_handle):
+        """
+        delete a message from the queue using its receipt_handle
+        """
         pass
