@@ -9,12 +9,32 @@ class SQS(MessageQueue):
         self.queue = self.resource.get_queue_by_name(QueueName="tasks.fifo")
 
     def send_message(self, message):
+        """
+        Sends a message to the queue
+
+        Parameters
+        ----------
+        message : dict
+            The message being sent to the queue
+
+        Raises
+        ------
+        ValueError : if the message isn't a dict or missing keys
+        """
         super(SQS, self).send_message(message)
         self.queue.send_message(
             MessageBody=json.dumps(message), MessageGroupId="tasks"
         )
 
     def receive_message(self):
+        """
+        Fetch a message from the specified queue.
+
+        Returns
+        -------
+        A message as a dictionary with attributes: from_format, to_format
+        key, bucket, request_id, receipt_handle, message_id
+        """
         messages = self.queue.receive_messages(
             MaxNumberOfMessages=1, WaitTimeSeconds=20
         )
@@ -28,6 +48,17 @@ class SQS(MessageQueue):
         return data
 
     def delete_message(self, receipt_handle, message_id):
+        """
+        Delete a message from the queue using its receipt_handle
+
+        Parameters
+        ----------
+        receipt_handle : string
+            The receipt handle for the message to be deleted
+
+        message_id : string
+            An identifier for this particular receipt handle
+        """
         print(receipt_handle)
         self.queue.delete_messages(
             Entries=[

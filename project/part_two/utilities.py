@@ -1,4 +1,16 @@
 def split_s3_path(s3_path):
+    """
+    Splits the s3_path into bucket and key
+
+    Parameters
+    ----------
+    s3_path : string
+        The full s3 path to be split
+
+    Returns
+    -------
+    The s3_path's bucket and key
+    """
     # Copied from stackoverflow
     # retrieve bucket name and object key from s3_path
     path_parts = s3_path.replace("s3://", "").split("/")
@@ -7,7 +19,36 @@ def split_s3_path(s3_path):
     return bucket, key
 
 
-def retryable_request(request, *args, **kwargs):
+def retriable_request(request, *args, **kwargs):
+    """
+    Network requests that are automatically retried upon failure with the 
+    exponential backoff strategy
+
+    Parameters
+    ----------
+    request : callable
+        The network request to be invoked
+    
+    args : arguments
+        The network requests arguments
+    
+    kwargs : keyword arguments
+        The network requests keyword arguments. May contain the user defined
+        retry count
+    
+    Returns
+    -------
+    The response from the network request is successful
+
+    Raises
+    ------
+    ValueError : If the request passed in is not callable
+
+    Exception : If the network request failed after retrying
+    """
+    if callable(request) is False:
+        raise ValueError('The network request is not callable')
+
     retry_count = kwargs.pop("retry", 5)
     retry_count = min(
         retry_count, 6

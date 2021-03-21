@@ -40,6 +40,18 @@ def convert_from_json_to_csv(content):
 
 
 def handle_task(message):
+    """
+    Splits the s3_path into bucket and key
+
+    Parameters
+    ----------
+    s3_path : string
+        The full s3 path to be split
+
+    Returns
+    -------
+    The s3_path's bucket and key
+    """
     time.sleep(10)  # pretend like it takes longer to receive a message
     request_id = message["request_id"]
     print(f"received request {request_id}")
@@ -105,7 +117,6 @@ def handle_task(message):
 
 
 if __name__ == "__main__":
-    print("Worker running")
     """Receives messages from the queue and processes the conversions.
 
     Polls task messages from the queue in an infinite loop.
@@ -114,6 +125,9 @@ if __name__ == "__main__":
     being processed. If it is, discard the message. If it isn't, spawn a new 
     process to handle the task and continue polling for messages.
     """
+
+    print("Worker running")
+
     while True:
         message = queue.receive_message()
         print(message)

@@ -10,6 +10,14 @@ messages = deque()
 
 @app.route("/add_message", methods=["POST"])
 def add_message():
+    """
+    Endpoint to add a message to the queue
+
+    Returns
+    -------
+    Error message if message can't be converted to dict or doesn't have the 
+    expected keys; success message if message successfully added to queue
+    """
     message = request.form["message"]
     return_string = "Message is successfully added to queue."
     message = json.loads(message)
@@ -36,6 +44,17 @@ def add_message():
 
 @app.route("/get_message", methods=["GET"])
 def get_message():
+    """
+    Endpoint to get a message from the queue
+
+    Returns
+    -------
+    Dict object representing the message or if the message is empty.
+
+    Raises
+    ------
+    IndexError: If the endpoint is reached when the queue is empty
+    """
     message = None
     try:
         message = messages.popleft()

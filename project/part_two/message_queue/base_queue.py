@@ -15,18 +15,17 @@ class MessageQueue:
     """
 
     def send_message(self, message):
-        """Sends a message to the queue
+        """
+        Sends a message to the queue
 
         Parameters
         ----------
-        message : int
-            The id of the request record we want to retrive from the DB
+        message : dict
+            The message being sent to the queue
 
-        Returns
+        Raises
         ------
-        True (has error) and error message if can't retrieve the
-        request from DB, and False (has no error) and request json if retrieved
-        request from DB
+        ValueError : if the message isn't a dict or missing keys
         """
         expected_keys = [
             "from_format",
@@ -43,12 +42,25 @@ class MessageQueue:
 
     def receive_message(self):
         """
-        fetch a message from the specified queue.
+        Fetch a message from the specified queue.
+
+        Returns
+        -------
+        A message as a dictionary with attributes: from_format, to_format
+        key, bucket, request_id, receipt_handle, message_id
         """
         pass
 
-    def delete_message(self, receipt_handle):
+    def delete_message(self, receipt_handle, message_id):
         """
-        delete a message from the queue using its receipt_handle
+        Delete a message from the queue using its receipt_handle
+
+        Parameters
+        ----------
+        receipt_handle : string
+            The receipt handle for the message to be deleted
+
+        message_id : string
+            An identifier for this particular receipt handle
         """
         pass
