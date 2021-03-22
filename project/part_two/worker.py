@@ -16,14 +16,36 @@ url_host = "http://34.208.159.15:80/"
 
 
 def convert_from_csv_to_json(content):
-    # Converts the csv string into json string
+    """
+    Converts the csv string into json string
+
+    Parameters
+    ----------
+    content : str
+    The file content in CSV format
+
+    Returns
+    -------
+    The file content in JSON format
+    """
     csv_reader = csv.DictReader(io.StringIO(content))
     json_data = json.dumps(list(csv_reader))
     return str(json.dumps(json_data))
 
 
 def convert_from_json_to_csv(content):
-    # Converts the json string into csv string
+    """
+    Converts the json string into csv string
+
+    Parameters
+    ----------
+    content : str
+    The file content in JSON format
+
+    Returns
+    -------
+    The file content in CSV format
+    """
     # first load reformats the json data into proper string format
     json_data = json.loads(content)
     json_data = json.loads(json_data)
@@ -41,16 +63,21 @@ def convert_from_json_to_csv(content):
 
 def handle_task(message):
     """
-    Splits the s3_path into bucket and key
+    Handles the task/user request
+
+    Updates request status in the database accordingly; updates the
+    file format in s3 accordingly
 
     Parameters
     ----------
-    s3_path : string
-        The full s3 path to be split
+    message : dict
+        The message containing the instructions for the task
 
-    Returns
-    -------
-    The s3_path's bucket and key
+    Raises
+    ------
+    Exception : If error occurs during conversion, for instance: cannot 
+                fetch file from s3, or cannot post file back to s3 after 
+                updating it.
     """
     time.sleep(10)  # pretend like it takes longer to receive a message
     request_id = message["request_id"]

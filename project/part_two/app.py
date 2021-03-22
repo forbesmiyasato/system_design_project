@@ -6,26 +6,25 @@ import database_model
 import message_queue
 
 from flask import Flask, request
+from .utilities import split_s3_path
 
 app = Flask(__name__)
-model = database_model.get_model()  # is this a good practice?
+model = database_model.get_model()
 s3 = boto3.client("s3")
-
-
-def split_s3_path(s3_path):
-    # Copied from stackoverflow
-    # retrieve bucket name and object key from s3_path
-    path_parts = s3_path.replace("s3://", "").split("/")
-    bucket = path_parts.pop(0)
-    key = "/".join(path_parts)
-    return bucket, key
 
 
 @app.route("/transform", methods=["POST"])
 def transform():
-    # Route for the user to make a conversion request
-    # Adds the conversion request to the queue and returns the
-    # user a request id
+    """
+    Endpoint to make a conversion request
+
+    Adds the conversion request to the queue
+
+    Returns
+    -------
+    Request ID if conversion request is accepted; Error message if the 
+    conversion request fails
+    """
     from_format = request.args.get("from_format")
     to_format = request.args.get("to_format")
     file_path = request.args.get("filename")
@@ -56,26 +55,53 @@ def transform():
 
 @app.route("/status", methods=["GET"])
 def get_status():
-    # Route for the user to check the conversion progress
+    """
+    Endpoint to check the conversion progress
+
+    Returns
+    -------
+    The conversion progress of the task or error message if fetching the 
+    conversion progress failed
+    """
     request_id = request.args.get("request_id")
     error, status = model.get_request(request_id)
-    status["code"] = int(status["code"])  # serialize the Decimal object
+    if not error:
+        status["code"] = int(status["code"])  # serialize the Decimal object
     return json.dumps(status) if not error else status
 
 
 @app.route("/update", methods=["POST"])
 def update_status():
-    # Route for the worker to update the conversion progress
+    """
+    Endpoint to update the conversion progress
+
+    Returns
+    -------
+    Message to indicate update status
+    """
     request_id = request.form["request_id"]
     status = request.form["status"]
     code = request.form["code"]
+    # TODO if update failed
     model.update_request(request_id, status, code)
     return "Updated"
 
 
 @app.route("/file", methods=["GET"])
 def get_file():
-    # Route for the user to check the file's content
+    """
+    Endpoint to fetch the content of a file using the filename
+
+    Returns
+    -------
+    Returns the content of the file if fetched successfully. Otherwise,
+    error message returned.
+
+    Raises
+    ------
+    Exception : if error occurs when retrieving file from s3
+    """    
+    
     path = request.args.get("filename")
 
     bucket_name, object_key = split_s3_path(path)
